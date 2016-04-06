@@ -1,0 +1,6 @@
+﻿  Source.cpp
+c:\users\abi\documents\visual studio 2015\projects\inputoutput\inputoutput\source.cpp(1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\inputoutput\inputoutput\source.cpp(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\inputoutput\inputoutput\source.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\inputoutput\inputoutput\source.cpp(21): warning C4101: 'timestep_graph': unreferenced local variable
+  InputOutput.vcxproj -> C:\Users\Abi\Documents\Visual Studio 2015\Projects\InputOutput\Debug\InputOutput.exe
