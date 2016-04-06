@@ -1,0 +1,4 @@
+﻿  main.cpp
+c:\users\kristi\documents\visual studio 2015\projects\transmission model\transmission model\main.cpp(89): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Transmission Model.vcxproj -> c:\users\kristi\documents\visual studio 2015\Projects\Transmission Model\Debug\Transmission Model.exe
+  Transmission Model.vcxproj -> c:\users\kristi\documents\visual studio 2015\Projects\Transmission Model\Debug\Transmission Model.pdb (Partial PDB)
