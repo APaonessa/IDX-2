@@ -1,0 +1,11 @@
+﻿  Source.cpp
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(7): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(236): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\abi\documents\visual studio 2015\projects\seir_model\seir_model\source.cpp(149): warning C4101: 'timestep_graph': unreferenced local variable
+  SEIR_Model.vcxproj -> C:\Users\Abi\Documents\Visual Studio 2015\Projects\SEIR_Model\Debug\SEIR_Model.exe
