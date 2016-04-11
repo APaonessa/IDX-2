@@ -1,11 +1,25 @@
-#include <iostream>
-#include <ctime>
-#include <math.h>
-#include <vector>
-#include <fstream>
+#include <iostream>; 
+#include <ctime>;
+#include <math.h>;
+#include <vector>;
+#include <fstream>;
 #include <string>; 
 #include <ios>; 
 using namespace std;
+
+double summary_statistics(vector<int>& inputdata, int amt_time, int previous_time)
+{
+	double total = 0;  
+	double avg = 0; 
+	for (int i = (previous_time-1); i < (amt_time) ; i++)
+	{
+		
+		total = inputdata[i] + total;
+		
+	}
+	avg = total / amt_time;
+	return avg; 
+}
 
 int susToExp(double beta, int infected, int susceptible)
 {
@@ -81,7 +95,6 @@ cout << "2.0 14.0 1.5";
 cout << "\n";
 cout << "365 1";
 cout << "\n";
-//cout << "Line 3: time step you want data displayed at";
 }
 
 void outputInfo(int susceptible, int infected, int exposed, double infected_time, int time_step, double incubation_time, double reproductive_rate, int endtime)
@@ -184,7 +197,6 @@ int main()
 				string output_textfile = output_filename + ".txt";
 				string line;
 				//Lets the program recognize the given file 
-				//fstream myfile;
 
 				string outputFileName = output_textfile; //input
 
@@ -220,6 +232,35 @@ int main()
 
 					outputFile <<  i + 1 << ", " << sData[i] << ", " << eData[i] << ", " << iData[i] << " \n";
 				}
+				double summary_statistic_7_s = summary_statistics(sData, 7, 1);
+				double summary_statistic_7_e = summary_statistics(eData, 7, 1);
+				double summary_statistic_7_i = summary_statistics(iData, 7, 1);
+				double summary_statistic_14_s = summary_statistics(sData, 14, 8); 
+				double summary_statistic_14_e = summary_statistics(eData, 14, 8);
+				double summary_statistic_14_i = summary_statistics(iData, 14, 8);
+				double summary_statistic_30_s = summary_statistics(sData, 30, 15);	
+				double summary_statistic_30_e = summary_statistics(eData, 30, 15);
+				double summary_statistic_30_i = summary_statistics(iData, 30, 15);
+				double summary_statistic_60_s = summary_statistics(sData, 60, 31); 
+				double summary_statistic_60_e = summary_statistics(eData, 60, 31);
+				double summary_statistic_60_i = summary_statistics(iData, 60, 31);
+
+
+				cout << "\n"; 
+				cout << "Here is a summary of the outputed data: \n"; 
+				cout << "Susceptible, Exposed, Infected \n"; 
+				cout << "At 7 days: "; 
+				cout << summary_statistic_7_s << ", " << summary_statistic_7_e << ", " << summary_statistic_7_i;
+				cout << "\n"; 
+				cout << "At 14 days: "; 
+				cout << summary_statistic_14_s << ", " << summary_statistic_14_e << ", " << summary_statistic_14_i; 
+				cout << "\n"; 
+				cout << "At 1 month: ";
+				cout << summary_statistic_30_s << ", " << summary_statistic_14_e << ", " << summary_statistic_30_i; 
+				cout << "\n"; 
+				cout << "At 2 months: "; 
+				cout << summary_statistic_60_s << ", " << summary_statistic_60_e << ", " << summary_statistic_60_i; 
+				cout << "\n"; 
 				outputFile.close();
 			}
 			//If file does not exist the program will output this and then end
