@@ -7,6 +7,25 @@
 #include <ios>; 
 using namespace std;
 
+int randProb(int div, double probs[])
+{
+	double randNum = (double)rand() / RAND_MAX;	//random number between 0 and 1
+	
+	cout << "randNum = ";
+	cout << randNum;
+	cout << "\n";
+	
+	double currProb = probs[0];
+		for(int i = 0; i<div-1; i++) {
+			if (randNum<currProb) {
+				return i;				//return index of drawn probability
+			}
+			currProb = currProb + probs[i + 1];
+		}
+
+	return div - 1;
+}
+
 double summary_statistics(vector<int>& inputdata, int amt_time, int previous_time)
 {
 	double total = 0;  
@@ -144,6 +163,19 @@ cout << "\n";
 
 int main()
 {
+	srand(time(NULL));	//seed rand()
+	double input[4] = { 0.2, 0.3, 0.1, 0.4 };
+	for (int i = 0; i < 10; i++) {
+		cout << randProb(4, input);
+		cout << "\n\n";
+	}
+
+
+
+
+
+
+	/*
 	int n = 0;
 	int runagain = 0;
 	string inputInformation[12];
@@ -292,6 +324,6 @@ int main()
 			exit(1);
 			return 0;
 		}
-	}
+	}*/
 	return 0;
 }
