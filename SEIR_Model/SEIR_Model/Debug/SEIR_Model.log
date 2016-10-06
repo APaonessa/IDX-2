@@ -6,5 +6,8 @@ c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp
 c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(7): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(166): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(8): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(46): warning C4018: '<': signed/unsigned mismatch
+c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(328): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(219): warning C4101: 'timestep_graph': unreferenced local variable
   SEIR_Model.vcxproj -> C:\Users\Kristi\Documents\School\research\IDX-2\SEIR_Model\Debug\SEIR_Model.exe

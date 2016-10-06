@@ -5,25 +5,52 @@
 #include <fstream>;
 #include <string>; 
 #include <ios>; 
+#include "Agent.h";
 using namespace std;
 
-int randProb(int div, double probs[])
+int countInfected(vector<Agent*> agents) {
+	int count = 0;
+	for (Agent* a : agents) {
+		if ((*a).getState() == 2) {
+			count++;
+		}
+	}
+	return count;
+}
+
+int countExposed(vector<Agent*> agents) {
+	int count = 0;
+	for (Agent* a : agents) {
+		if ((*a).getState() == 1) {
+			count++;
+		}
+	}
+	return count;
+}
+
+int countSus(vector<Agent*> agents) {
+	int count = 0;
+	for (Agent* a : agents) {
+		if ((*a).getState() == 0) {
+			count++;
+		}
+	}
+	return count;
+}
+
+int randProb(vector<double> probs)
 {
 	double randNum = (double)rand() / RAND_MAX;	//random number between 0 and 1
 	
-	cout << "randNum = ";
-	cout << randNum;
-	cout << "\n";
-	
 	double currProb = probs[0];
-		for(int i = 0; i<div-1; i++) {
+		for(int i = 0; i<(probs.size()-1); i++) {
 			if (randNum<currProb) {
 				return i;				//return index of drawn probability
 			}
 			currProb = currProb + probs[i + 1];
 		}
 
-	return div - 1;
+	return probs.size() - 1;
 }
 
 double summary_statistics(vector<int>& inputdata, int amt_time, int previous_time)
@@ -40,58 +67,80 @@ double summary_statistics(vector<int>& inputdata, int amt_time, int previous_tim
 	return avg; 
 }
 
-int susToExp(double beta, int infected, int susceptible)
+/*
+void susToExp(vector<Agent*> agents, double beta, int timeStep)
 {
-	int count = 0; //counts number of people that need to transition from S to E
-	double probability = 1 - pow(1 - beta, infected);
-	int randNum;
+	double probability = 1 - pow(1 - beta, countInfected(agents));
+	vector<double> probs = { probability, (1 - probability) };
 
-	//an iteration for each susceptible person
-	for (int i = 0; i < susceptible; i++)
+	for (Agent* a : agents)
 	{
-		randNum = rand() % 1000;
-		if (randNum < probability * 1000.0)
-		{
-			count++;
+		if ((*a).getState() == 0) {
+			if (randProb(probs) == 0) {
+				(*a).setState(1);
+				(*a).setTimeExp(timeStep);
+			}
 		}
+		
 	}
-	return count;
 }
 
-int expToInf(double incubationTime, int timeStep, int exposed)
+void expToInf(vector<Agent*> agents, double incubationTime, int timeStep)
 {
-	int count = 0; //counts number of people that need to transition from E to I
-	double probability = timeStep / incubationTime;
-	int randNum;
-
-	//an iteration for each exposed person
-	for (int i = 0; i < exposed; i++)
+	for (Agent* a : agents)
 	{
-		randNum = rand() % 1000;
-		if (randNum <= probability * 1000.0)
-		{
-			count++;
+		if ((*a).getState() == 1) {
+			if (timeStep - (*a).getTimeExp() >= incubationTime) {
+				(*a).setState(2);
+				(*a).setTimeInf(timeStep);
+			}
 		}
 	}
-	return count;
 }
 
-int infToSus(double infectedTime, int timeStep, int infected)
+void infToSus(vector<Agent*> agents, double infectedTime, int timeStep)
 {
-	int count = 0; //counts number of people that need to transition from I to S
-	double probability = timeStep / infectedTime;
-	int randNum;
-
-	//an iteration for each infected person
-	for (int i = 0; i < infected; i++)
+	for (Agent* a : agents)
 	{
-		randNum = rand() % 1000;
-		if (randNum < probability * 1000.0)
-		{
-			count++;
+		if ((*a).getState() == 2) {
+			if (timeStep - (*a).getTimeInf() >= infectedTime) {
+				(*a).setState(0);
+			}
+		}
+
+	}
+
+}
+*/
+//combines susToExp, expToInf, and infToSus
+void transmission(vector<Agent*> agents, double beta, double incubationTime, double infectedTime, int timeStep)
+{
+	double probability = 1 - pow(1 - beta, countInfected(agents));
+	vector<double> probs = { probability, (1 - probability) };
+
+	for (Agent* a : agents)
+	{
+		if ((*a).getState() == 0) {
+			if (randProb(probs) == 0) {
+				(*a).setState(1);
+				(*a).setTimeExp(timeStep);
+			}
+		}
+		else if ((*a).getState() == 1) {
+			if (timeStep - (*a).getTimeExp() >= incubationTime) {
+				(*a).setState(2);
+				(*a).setTimeInf(timeStep);
+			}
+		}
+		else if ((*a).getState() == 2) {
+			if (timeStep - (*a).getTimeInf() >= infectedTime) {
+				(*a).setState(0);
+			}
 		}
 	}
-	return count;
+
+
+
 }
 
 void inputInfo()
@@ -163,19 +212,7 @@ cout << "\n";
 
 int main()
 {
-	srand(time(NULL));	//seed rand()
-	double input[4] = { 0.2, 0.3, 0.1, 0.4 };
-	for (int i = 0; i < 10; i++) {
-		cout << randProb(4, input);
-		cout << "\n\n";
-	}
-
-
-
-
-
-
-	/*
+	
 	int n = 0;
 	int runagain = 0;
 	string inputInformation[12];
@@ -256,9 +293,31 @@ int main()
 				ofstream outputFile;
 				outputFile.open(outputFileName);
 
+				//stores summary of SEI at every time interval
 				vector<int> sData;
 				vector<int> eData;
 				vector<int> iData;
+
+				vector<Agent*> agents;
+
+				//initialize agents
+				for (int i = 0; i < susceptible; i++) {
+					Agent * a = new Agent();
+					(*a).setState(0);
+					agents.push_back(a);
+				}
+				for (int i = 0; i < exposed; i++) {
+					Agent * a = new Agent();
+					(*a).setState(1);
+					(*a).setTimeExp(-1*(i % (int)incubation_time));	//approximately even distribution of stage of incubation
+					agents.push_back(a);
+				}
+				for (int i = 0; i < infected; i++) {
+					Agent * a = new Agent();
+					(*a).setState(2);
+					(*a).setTimeInf(-1*(i % (int)infected_time));		//approximately even distribution of stage of infection
+					agents.push_back(a);
+				}
 
 				sData.push_back(susceptible);
 				eData.push_back(exposed);
@@ -266,24 +325,21 @@ int main()
 				outputFile << "Day, Suceptible, Exposed, Infected, Total\n"; 
 				outputFile << "0, " << sData[0] << ", " << eData[0] << ", " << iData[0] << ", " << sData[0]+eData[0]+iData[0] << "\n";
 
-				srand(time(0));	//seed random number generator
+				srand(time(NULL));	//seed random number generator
 				
-				for (int i = 0; i < endtime; i = i + time_step)
+				for (int i = 1; i <= endtime; i = i + time_step)
 				{
-					double beta = reproductive_rate / (infected_time * (susceptible + exposed + infected));
-					int difference1 = susToExp(beta, infected, susceptible);
-					int difference2 = expToInf(incubation_time, time_step, exposed);
-					int difference3 = infToSus(infected_time, time_step, infected);
+					int sus = countSus(agents);
+					int exp = countExposed(agents);
+					int inf = countInfected(agents);
+					double beta = reproductive_rate / (infected_time * (sus + exp + inf));
+					transmission(agents, beta, incubation_time, infected_time, i);
 
-					susceptible = susceptible + difference3 - difference1;
-					exposed = exposed + difference1 - difference2;
-					infected = infected + difference2 - difference3;
+					sData.push_back(countSus(agents));
+					eData.push_back(countExposed(agents));
+					iData.push_back(countInfected(agents));
 
-					sData.push_back(susceptible);
-					eData.push_back(exposed);
-					iData.push_back(infected);
-
-					outputFile << i + 1 << ", " << sData[i] << ", " << eData[i] << ", " << iData[i] << ", " << sData[i] + eData[i] + iData[i] << "\n";
+					outputFile << i << ", " << sData[i] << ", " << eData[i] << ", " << iData[i] << ", " << sData[i] + eData[i] + iData[i] << "\n";
 				}
 				double summary_statistic_1_s = summary_statistics(sData, summary_statistic1, 1);
 				double summary_statistic_1_e = summary_statistics(eData, summary_statistic1, 1);
@@ -313,7 +369,7 @@ int main()
 				cout << "\n"; 
 				cout << "At 2 months: "; 
 				cout << summary_statistic_4_s << ", " << summary_statistic_4_e << ", " << summary_statistic_4_i; 
-				cout << "\n"; 
+				cout << "\n";  
 				outputFile.close();
 			}
 			//If file does not exist the program will output this and then end
@@ -324,6 +380,6 @@ int main()
 			exit(1);
 			return 0;
 		}
-	}*/
+	}
 	return 0;
 }
