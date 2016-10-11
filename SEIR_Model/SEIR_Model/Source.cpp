@@ -6,6 +6,8 @@
 #include <string>; 
 #include <ios>; 
 #include "Agent.h";
+#include <boost/random.hpp>
+#include <boost/generator_iterator.hpp>
 using namespace std;
 
 int countInfected(vector<Agent*> agents) {
@@ -38,10 +40,12 @@ int countSus(vector<Agent*> agents) {
 	return count;
 }
 
-int randProb(vector<double> probs)
+int randProb(vector<double> probs, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
 {
-	double randNum = (double)rand() / RAND_MAX;	//random number between 0 and 1
-	
+	//double randNum = (double)rand() / RAND_MAX;	//random number between 0 and 1
+	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > RNG = *RNGpoint;
+	double randNum = RNG();
+
 	double currProb = probs[0];
 		for(int i = 0; i<(probs.size()-1); i++) {
 			if (randNum<currProb) {
@@ -67,53 +71,9 @@ double summary_statistics(vector<int>& inputdata, int amt_time, int previous_tim
 	return avg; 
 }
 
-/*
-void susToExp(vector<Agent*> agents, double beta, int timeStep)
-{
-	double probability = 1 - pow(1 - beta, countInfected(agents));
-	vector<double> probs = { probability, (1 - probability) };
 
-	for (Agent* a : agents)
-	{
-		if ((*a).getState() == 0) {
-			if (randProb(probs) == 0) {
-				(*a).setState(1);
-				(*a).setTimeExp(timeStep);
-			}
-		}
-		
-	}
-}
-
-void expToInf(vector<Agent*> agents, double incubationTime, int timeStep)
-{
-	for (Agent* a : agents)
-	{
-		if ((*a).getState() == 1) {
-			if (timeStep - (*a).getTimeExp() >= incubationTime) {
-				(*a).setState(2);
-				(*a).setTimeInf(timeStep);
-			}
-		}
-	}
-}
-
-void infToSus(vector<Agent*> agents, double infectedTime, int timeStep)
-{
-	for (Agent* a : agents)
-	{
-		if ((*a).getState() == 2) {
-			if (timeStep - (*a).getTimeInf() >= infectedTime) {
-				(*a).setState(0);
-			}
-		}
-
-	}
-
-}
-*/
 //combines susToExp, expToInf, and infToSus
-void transmission(vector<Agent*> agents, double beta, double incubationTime, double infectedTime, int timeStep)
+void transmission(vector<Agent*> agents, double beta, double incubationTime, double infectedTime, int timeStep, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
 {
 	double probability = 1 - pow(1 - beta, countInfected(agents));
 	vector<double> probs = { probability, (1 - probability) };
@@ -121,7 +81,7 @@ void transmission(vector<Agent*> agents, double beta, double incubationTime, dou
 	for (Agent* a : agents)
 	{
 		if ((*a).getState() == 0) {
-			if (randProb(probs) == 0) {
+			if (randProb(probs, RNGpoint) == 0) {
 				(*a).setState(1);
 				(*a).setTimeExp(timeStep);
 			}
@@ -325,7 +285,15 @@ int main()
 				outputFile << "Day, Suceptible, Exposed, Infected, Total\n"; 
 				outputFile << "0, " << sData[0] << ", " << eData[0] << ", " << iData[0] << ", " << sData[0]+eData[0]+iData[0] << "\n";
 
-				srand(time(NULL));	//seed random number generator
+				boost::mt19937 generator(time(0));	//create RNG
+				boost::random::uniform_real_distribution< > uniformDistribution(0.0, 1.0);
+				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
+					generateRandomNumbers(generator, uniformDistribution);
+				
+				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint = &generateRandomNumbers;
+				
+				
+				//srand(time(NULL));	//seed random number generator
 				
 				for (int i = 1; i <= endtime; i = i + time_step)
 				{
@@ -333,7 +301,7 @@ int main()
 					int exp = countExposed(agents);
 					int inf = countInfected(agents);
 					double beta = reproductive_rate / (infected_time * (sus + exp + inf));
-					transmission(agents, beta, incubation_time, infected_time, i);
+					transmission(agents, beta, incubation_time, infected_time, i, RNGpoint);
 
 					sData.push_back(countSus(agents));
 					eData.push_back(countExposed(agents));
@@ -379,7 +347,7 @@ int main()
 		{
 			exit(1);
 			return 0;
-		}
+		} 
 	}
 	return 0;
 }
