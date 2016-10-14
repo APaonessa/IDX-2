@@ -1,15 +1,15 @@
 ﻿  Source.cpp
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(7): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(8): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(50): warning C4018: '<': signed/unsigned mismatch
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(288): warning C4244: 'argument': conversion from 'time_t' to 'const uint32_t', possible loss of data
-c:\users\kristi\documents\school\research\idx-2\seir_model\seir_model\source.cpp(179): warning C4101: 'timestep_graph': unreferenced local variable
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(7): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(8): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(49): warning C4018: '<': signed/unsigned mismatch
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(309): warning C4244: 'argument': conversion from 'time_t' to 'const uint32_t', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(186): warning C4101: 'timestep_graph': unreferenced local variable
 c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2810): warning C4996: 'std::_Fill_n': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
   c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2797): note: see declaration of 'std::_Fill_n'
   c:\program files\boost_1_62_0\boost\random\detail\polynomial.hpp(114): note: see reference to function template instantiation '_OutIt std::fill_n<boost::random::detail::polynomial_ops::digit_t*,size_t,boost::random::detail::polynomial_ops::digit_t>(_OutIt,_Diff,const _Ty &)' being compiled
@@ -19,4 +19,4 @@ c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2810): w
               _Diff=size_t,
               _Ty=boost::random::detail::polynomial_ops::digit_t
           ]
-  SEIR_Model.vcxproj -> C:\Users\Kristi\Documents\School\research\IDX-2\SEIR_Model\Debug\SEIR_Model.exe
+  SEIR_Model.vcxproj -> C:\Users\Kristi\Documents\School\research\ABM\IDX-2\SEIR_Model\Debug\SEIR_Model.exe

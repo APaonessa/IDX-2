@@ -42,7 +42,6 @@ int countSus(vector<Agent*> agents) {
 
 int randProb(vector<double> probs, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
 {
-	//double randNum = (double)rand() / RAND_MAX;	//random number between 0 and 1
 	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > RNG = *RNGpoint;
 	double randNum = RNG();
 
@@ -118,6 +117,9 @@ cout << "\n";
 cout << "Line 4: Input 4 #'s for summary statistics"; 
 cout << "\n";
 cout << "\n"; 
+cout << "Line 5: Number of simulation runs";
+cout << "\n";
+cout << "\n";
 cout << "Example of txt file: \n";
 cout << "1000 0 1";
 cout << "\n";
@@ -127,10 +129,12 @@ cout << "365 1";
 cout << "\n";
 cout << "7 14 30 60"; 
 cout << "\n"; 
-cout << "\n"; 
+cout << "50";
+cout << "\n";
+cout << "\n";
 }
 
-void outputInfo(int susceptible, int infected, int exposed, double infected_time, int time_step, double incubation_time, double reproductive_rate, int endtime, int summary_statistic1, int summary_statistic2, int summary_statistic3, int summary_statistic4)
+void outputInfo(int susceptible, int infected, int exposed, double infected_time, int time_step, double incubation_time, double reproductive_rate, int endtime, int summary_statistic1, int summary_statistic2, int summary_statistic3, int summary_statistic4, int numOfRuns)
 {
 cout << "susceptible: ";
 cout << susceptible;
@@ -168,6 +172,9 @@ cout << "\n";
 cout << "summary statistic 4: "; 
 cout << summary_statistic4; 
 cout << "\n"; 
+cout << "number of simulation runs: ";
+cout << numOfRuns;
+cout << "\n";
 }
 
 int main()
@@ -175,8 +182,9 @@ int main()
 	
 	int n = 0;
 	int runagain = 0;
-	string inputInformation[12];
+	string inputInformation[13];
 	char timestep_graph;
+	int run = 0;
 
 	inputInfo(); 
 
@@ -209,6 +217,7 @@ int main()
 
 			if (myfile.good())
 			{
+				cout << "good";
 				while (!myfile.eof())
 				{
 					//runs through the file and populates the array with the data from the file
@@ -230,9 +239,10 @@ int main()
 				int summary_statistic2 = stoi(inputInformation[9]); 
 				int summary_statistic3 = stoi(inputInformation[10]); 
 				int summary_statistic4 = stoi(inputInformation[11]); 
+				int numOfRuns = stoi(inputInformation[12]);
 
 				//prints out the data that is read in file as a check... 
-				outputInfo(susceptible, infected, exposed, infected_time, time_step, incubation_time, reproductive_rate, endtime, summary_statistic1, summary_statistic2, summary_statistic3, summary_statistic4); 
+				outputInfo(susceptible, infected, exposed, infected_time, time_step, incubation_time, reproductive_rate, endtime, summary_statistic1, summary_statistic2, summary_statistic3, summary_statistic4, numOfRuns); 
 
 				//Give the option to run with current data or start over and enter new data
 				runagain = 0;
@@ -252,63 +262,87 @@ int main()
 
 				ofstream outputFile;
 				outputFile.open(outputFileName);
-
-				//stores summary of SEI at every time interval
+				
+				//stores current sum of SEI at every time interval over the runs
 				vector<int> sData;
 				vector<int> eData;
 				vector<int> iData;
-
+				
 				vector<Agent*> agents;
 
-				//initialize agents
-				for (int i = 0; i < susceptible; i++) {
-					Agent * a = new Agent();
-					(*a).setState(0);
-					agents.push_back(a);
-				}
-				for (int i = 0; i < exposed; i++) {
-					Agent * a = new Agent();
-					(*a).setState(1);
-					(*a).setTimeExp(-1*(i % (int)incubation_time));	//approximately even distribution of stage of incubation
-					agents.push_back(a);
-				}
-				for (int i = 0; i < infected; i++) {
-					Agent * a = new Agent();
-					(*a).setState(2);
-					(*a).setTimeInf(-1*(i % (int)infected_time));		//approximately even distribution of stage of infection
-					agents.push_back(a);
-				}
+				while (run < numOfRuns) {
 
-				sData.push_back(susceptible);
-				eData.push_back(exposed);
-				iData.push_back(infected);
-				outputFile << "Day, Suceptible, Exposed, Infected, Total\n"; 
-				outputFile << "0, " << sData[0] << ", " << eData[0] << ", " << iData[0] << ", " << sData[0]+eData[0]+iData[0] << "\n";
+					//initialize agents
+					for (int i = 0; i < susceptible; i++) {
+						Agent * a = new Agent();
+						(*a).setState(0);
+						agents.push_back(a);
+					}
+					for (int i = 0; i < exposed; i++) {
+						Agent * a = new Agent();
+						(*a).setState(1);
+						(*a).setTimeExp(-1 * (i % (int)incubation_time));	//approximately even distribution of stage of incubation
+						agents.push_back(a);
+					}
+					for (int i = 0; i < infected; i++) {
+						Agent * a = new Agent();
+						(*a).setState(2);
+						(*a).setTimeInf(-1 * (i % (int)infected_time));		//approximately even distribution of stage of infection
+						agents.push_back(a);
+					}
 
-				boost::mt19937 generator(time(0));	//create RNG
-				boost::random::uniform_real_distribution< > uniformDistribution(0.0, 1.0);
-				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-					generateRandomNumbers(generator, uniformDistribution);
-				
-				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint = &generateRandomNumbers;
-				
-				
-				//srand(time(NULL));	//seed random number generator
-				
-				for (int i = 1; i <= endtime; i = i + time_step)
-				{
-					int sus = countSus(agents);
-					int exp = countExposed(agents);
-					int inf = countInfected(agents);
-					double beta = reproductive_rate / (infected_time * (sus + exp + inf));
-					transmission(agents, beta, incubation_time, infected_time, i, RNGpoint);
+					if (run == 0) {
+						sData.push_back(susceptible);
+						eData.push_back(exposed);
+						iData.push_back(infected);
+					}
+					else {
+						sData.at(0) = sData.at(0) + susceptible;
+						eData.at(0) = eData.at(0) + exposed;
+						iData.at(0) = iData.at(0) + infected;
+					}
+					if (run == numOfRuns - 1) {
+						outputFile << "Day, Suceptible, Exposed, Infected, Total\n";
+						outputFile << "0, " << sData[0]/numOfRuns << ", " << eData[0]/numOfRuns << ", " << iData[0]/numOfRuns << ", " << (sData[0] + eData[0] + iData[0])/numOfRuns << "\n";
+					}
 
-					sData.push_back(countSus(agents));
-					eData.push_back(countExposed(agents));
-					iData.push_back(countInfected(agents));
+					boost::mt19937 generator(time(0));	//create RNG
+					boost::random::uniform_real_distribution< > uniformDistribution(0.0, 1.0);
+					boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
+						generateRandomNumbers(generator, uniformDistribution);
 
-					outputFile << i << ", " << sData[i] << ", " << eData[i] << ", " << iData[i] << ", " << sData[i] + eData[i] + iData[i] << "\n";
+					boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint = &generateRandomNumbers;
+
+
+					for (int i = 1; i <= endtime; i = i + time_step)
+					{
+						int sus = countSus(agents);
+						int exp = countExposed(agents);
+						int inf = countInfected(agents);
+						double beta = reproductive_rate / (infected_time * (sus + exp + inf));
+						transmission(agents, beta, incubation_time, infected_time, i, RNGpoint);
+
+						if (run == 0) {
+							sData.push_back(countSus(agents));
+							eData.push_back(countExposed(agents));
+							iData.push_back(countInfected(agents));
+						}
+						else {
+							sData.at(i) = sData.at(i) + countSus(agents);
+							eData.at(i) = eData.at(i) + countExposed(agents);
+							iData.at(i) = iData.at(i) + countInfected(agents);
+						}
+						if (run == numOfRuns - 1) {
+							outputFile << i << ", " << (double) sData[i]/numOfRuns << ", " << (double) eData[i]/numOfRuns << ", " << (double) iData[i]/numOfRuns << ", " << (sData[i] + eData[i] + iData[i])/numOfRuns << "\n";
+						}
+					}
+					run++;
+					agents.clear();
 				}
+				
+				
+				
+				
 				double summary_statistic_1_s = summary_statistics(sData, summary_statistic1, 1);
 				double summary_statistic_1_e = summary_statistics(eData, summary_statistic1, 1);
 				double summary_statistic_1_i = summary_statistics(iData, summary_statistic1, 1);
