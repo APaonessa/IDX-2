@@ -56,6 +56,18 @@ int randProb(vector<double> probs, boost::variate_generator< boost::mt19937&, bo
 	return probs.size() - 1;
 }
 
+double randNum(boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
+{
+	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > RNG = *RNGpoint;
+	return RNG();
+}
+
+double randTriangleNum(boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint)
+{
+	boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > RNG = *triangleRNGpoint;
+	return RNG();
+}
+
 double summary_statistics(vector<int>& inputdata, int amt_time, int previous_time)
 {
 	double total = 0;  
@@ -72,28 +84,50 @@ double summary_statistics(vector<int>& inputdata, int amt_time, int previous_tim
 
 
 //combines susToExp, expToInf, and infToSus
-void transmission(vector<Agent*> agents, double beta, double incubationTime, double infectedTime, int timeStep, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
+void transmission(vector<Agent*> agents, double beta, double incubationTime, double lower_inc, double upper_inc, double infectedTime, double lower_inf, double upper_inf, int timeStep, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint, boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint, int inc_dist, int inf_dist)
 {
 	double probability = 1 - pow(1 - beta, countInfected(agents));
 	vector<double> probs = { probability, (1 - probability) };
 
 	for (Agent* a : agents)
 	{
-		if ((*a).getState() == 0) {
+		if ((*a).getState() == 0) {	//sus to exp
 			if (randProb(probs, RNGpoint) == 0) {
 				(*a).setState(1);
-				(*a).setTimeExp(timeStep);
 			}
 		}
-		else if ((*a).getState() == 1) {
-			if (timeStep - (*a).getTimeExp() >= incubationTime) {
+		else if ((*a).getState() == 1) {	//exp to inf
+			if ((*a).getEI() == -1) {
+				if (inc_dist == 0) {		//single value
+					(*a).setEI(timeStep + incubationTime);
+				}
+				else if (inc_dist == 1) {		//uniform
+					(*a).setEI(timeStep + ceil(randNum(RNGpoint)*(upper_inc - lower_inc)) + lower_inc);
+				}
+				else if (inc_dist == 2) {		//triangular
+					(*a).setEI(timeStep + ceil(randTriangleNum(triangleRNGpoint)*(upper_inc - lower_inc)) + lower_inc);
+				}
+			}
+			else if (timeStep == (*a).getEI()) {
 				(*a).setState(2);
-				(*a).setTimeInf(timeStep);
+				(*a).setEI(-1);
 			}
 		}
-		else if ((*a).getState() == 2) {
-			if (timeStep - (*a).getTimeInf() >= infectedTime) {
+		else if ((*a).getState() == 2) {	//inf to sus
+			if ((*a).getIS() == -1) {
+				if (inf_dist == 0) {	//single value
+					(*a).setIS(timeStep + infectedTime);
+				}
+				else if (inf_dist == 1) {		//uniform
+					(*a).setIS(timeStep + ceil(randNum(RNGpoint)*(upper_inf - lower_inf)) + lower_inf);
+				}
+				else if (inf_dist == 2) {		//triangular
+					(*a).setIS(timeStep + ceil(randTriangleNum(triangleRNGpoint)*(upper_inf - lower_inf)) + lower_inf);
+				}
+			}
+			else if (timeStep == (*a).getIS()) {
 				(*a).setState(0);
+				(*a).setIS(-1);
 			}
 		}
 	}
@@ -134,7 +168,7 @@ cout << "\n";
 cout << "\n";
 }
 
-void outputInfo(int susceptible, int infected, int exposed, double infected_time, int time_step, double incubation_time, double reproductive_rate, int endtime, int summary_statistic1, int summary_statistic2, int summary_statistic3, int summary_statistic4, int numOfRuns)
+void outputInfo(int susceptible, int infected, int exposed, int inf_dist, double infected_time, double lower_inf, double upper_inf, int time_step, int inc_dist, double incubation_time, double lower_inc, double upper_inc, double reproductive_rate, int endtime, int summary_statistic1, int summary_statistic2, int summary_statistic3, int summary_statistic4, int numOfRuns)
 {
 cout << "susceptible: ";
 cout << susceptible;
@@ -145,12 +179,37 @@ cout << "\n";
 cout << "infected: ";
 cout << infected;
 cout << "\n";
-cout << "incubation time: ";
-cout << incubation_time;
-cout << "\n";
-cout << "infected time: ";
-cout << infected_time;
-cout << "\n";
+if (inc_dist == 0) {
+	cout << "incubation time: ";
+	cout << incubation_time;
+	cout << "\n";
+}
+else if (inc_dist == 1) {
+	cout << "incubation time: ";
+	cout << lower_inc << "-" << upper_inc << " (uniform)";
+	cout << "\n";
+}
+else if (inc_dist == 2) {
+	cout << "incubation time: ";
+	cout << lower_inc << "-" << upper_inc << " (triangular)";
+	cout << "\n";
+}
+
+if (inf_dist == 0) {
+	cout << "infected time: ";
+	cout << infected_time;
+	cout << "\n";
+}
+else if (inf_dist == 1) {
+	cout << "infected time: ";
+	cout << lower_inf << "-" << upper_inf << " (uniform)";
+	cout << "\n";
+}
+else if (inf_dist == 2) {
+	cout << "infected time: ";
+	cout << lower_inf << "-" << upper_inf << " (triangular)";
+	cout << "\n";
+}
 cout << "reproductive rate: ";
 cout << reproductive_rate;
 cout << "\n";
@@ -179,14 +238,14 @@ cout << "\n";
 
 int main()
 {
-	
+
 	int n = 0;
 	int runagain = 0;
 	string inputInformation[13];
 	char timestep_graph;
 	int run = 0;
 
-	inputInfo(); 
+	inputInfo();
 
 
 	while (runagain > -1)
@@ -217,7 +276,6 @@ int main()
 
 			if (myfile.good())
 			{
-				cout << "good";
 				while (!myfile.eof())
 				{
 					//runs through the file and populates the array with the data from the file
@@ -232,17 +290,55 @@ int main()
 				int infected = stoi(inputInformation[2]);
 				int time_step = stoi(inputInformation[7]);
 				int endtime = stoi(inputInformation[6]);
-				double incubation_time = stod(inputInformation[3]);
-				double infected_time = stod(inputInformation[4]);
+				double incubation_time, upper_inc, lower_inc;
+				int checkRange = inputInformation[3].find('-');
+				int inc_dist, inf_dist;	//0 = single value, 1 = uniform, 2 = triangular
+				if (checkRange == -1) {	//single value
+					incubation_time = stod(inputInformation[3]);
+					inc_dist = 0;
+					lower_inc = -1;
+					upper_inc = -1;
+				}
+				else {	//range of values
+					lower_inc = stod(inputInformation[3].substr(0, checkRange));
+					upper_inc = stod(inputInformation[3].substr(checkRange+1, inputInformation[3].size()-checkRange-1));
+					incubation_time = -1;
+
+					cout << "\n";
+					cout << "Uniform distribution (1) or triangular distribution (2) for incubation time?";
+					cin >> inc_dist;
+				}
+				double infected_time, upper_inf, lower_inf;
+				checkRange = inputInformation[4].find('-');
+				if (checkRange == -1) {	//single value
+					infected_time = stod(inputInformation[4]);
+					inf_dist = 0;
+					lower_inf = -1;
+					upper_inf = -1;
+				}
+				else {	//range of values
+					lower_inf = stod(inputInformation[4].substr(0, checkRange));
+					upper_inf = stod(inputInformation[4].substr(checkRange + 1, inputInformation[4].size() - checkRange - 1));
+					infected_time = -1;
+
+					cout << "\n";
+					cout << "Uniform distribution (1) or triangular distribution (2) for infected time?";
+					cin >> inf_dist;
+
+				}
 				double reproductive_rate = stod(inputInformation[5]);
-				int summary_statistic1 = stoi(inputInformation[8]); 
-				int summary_statistic2 = stoi(inputInformation[9]); 
-				int summary_statistic3 = stoi(inputInformation[10]); 
-				int summary_statistic4 = stoi(inputInformation[11]); 
+				int summary_statistic1 = stoi(inputInformation[8]);
+				int summary_statistic2 = stoi(inputInformation[9]);
+				int summary_statistic3 = stoi(inputInformation[10]);
+				int summary_statistic4 = stoi(inputInformation[11]);
 				int numOfRuns = stoi(inputInformation[12]);
 
+
 				//prints out the data that is read in file as a check... 
-				outputInfo(susceptible, infected, exposed, infected_time, time_step, incubation_time, reproductive_rate, endtime, summary_statistic1, summary_statistic2, summary_statistic3, summary_statistic4, numOfRuns); 
+				outputInfo(susceptible, infected, exposed, inf_dist, infected_time, lower_inf, upper_inf, time_step, inc_dist, incubation_time, lower_inc, upper_inc, reproductive_rate, endtime, summary_statistic1, summary_statistic2, summary_statistic3, summary_statistic4, numOfRuns);
+
+
+
 
 				//Give the option to run with current data or start over and enter new data
 				runagain = 0;
@@ -262,32 +358,76 @@ int main()
 
 				ofstream outputFile;
 				outputFile.open(outputFileName);
-				
+
 				//stores current sum of SEI at every time interval over the runs
 				vector<int> sData;
 				vector<int> eData;
 				vector<int> iData;
-				
+
+				vector<int> s365;
+				vector<int> e365;
+				vector<int> i365;
+
+				vector<int> s200;
+				vector<int> e200;
+				vector<int> i200;
+
+				vector<int> s100;
+				vector<int> e100;
+				vector<int> i100;
+
 				vector<Agent*> agents;
 
+				boost::mt19937 generator(time(0));	//create RNG
+				boost::random::uniform_real_distribution< > uniformDistribution(0.0, 1.0);
+				boost::random::triangle_distribution< > triangleDistribution(0.0, 1.0);
+
+				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
+					generateRandomNumbers(generator, uniformDistribution);
+				boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > >
+					generateTriangleRandomNumbers(generator, triangleDistribution);
+
+				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint = &generateRandomNumbers;
+				boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint = &generateTriangleRandomNumbers;
+				
 				while (run < numOfRuns) {
 
 					//initialize agents
 					for (int i = 0; i < susceptible; i++) {
 						Agent * a = new Agent();
 						(*a).setState(0);
+						(*a).setEI(-1);
+						(*a).setIS(-1);
 						agents.push_back(a);
 					}
 					for (int i = 0; i < exposed; i++) {
 						Agent * a = new Agent();
 						(*a).setState(1);
-						(*a).setTimeExp(-1 * (i % (int)incubation_time));	//approximately even distribution of stage of incubation
+						if (inc_dist == 0) {		//single value
+							(*a).setEI(incubation_time);
+						}
+						else if (inc_dist == 1) {		//uniform
+							(*a).setEI(ceil(randNum(RNGpoint)*(upper_inc - lower_inc)) + lower_inc);
+						}
+						else if (inc_dist == 2) {	//triangular
+							(*a).setEI(ceil(randTriangleNum(triangleRNGpoint)*(upper_inc - lower_inc)) + lower_inc);
+						}
+						(*a).setIS(-1);
 						agents.push_back(a);
 					}
 					for (int i = 0; i < infected; i++) {
 						Agent * a = new Agent();
 						(*a).setState(2);
-						(*a).setTimeInf(-1 * (i % (int)infected_time));		//approximately even distribution of stage of infection
+						(*a).setEI(-1);
+						if (inf_dist == 0) {		//single value
+							(*a).setIS(infected_time);
+						}
+						else if (inf_dist == 1) {		//uniform
+							(*a).setIS(ceil(randNum(RNGpoint)*(upper_inf - lower_inf)) + lower_inf);
+						}
+						else if (inf_dist == 2) {	//triangular
+							(*a).setIS(ceil(randTriangleNum(triangleRNGpoint)*(upper_inf - lower_inf)) + lower_inf);
+						}
 						agents.push_back(a);
 					}
 
@@ -301,17 +441,6 @@ int main()
 						eData.at(0) = eData.at(0) + exposed;
 						iData.at(0) = iData.at(0) + infected;
 					}
-					if (run == numOfRuns - 1) {
-						outputFile << "Day, Suceptible, Exposed, Infected, Total\n";
-						outputFile << "0, " << sData[0]/numOfRuns << ", " << eData[0]/numOfRuns << ", " << iData[0]/numOfRuns << ", " << (sData[0] + eData[0] + iData[0])/numOfRuns << "\n";
-					}
-
-					boost::mt19937 generator(time(0));	//create RNG
-					boost::random::uniform_real_distribution< > uniformDistribution(0.0, 1.0);
-					boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-						generateRandomNumbers(generator, uniformDistribution);
-
-					boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint = &generateRandomNumbers;
 
 
 					for (int i = 1; i <= endtime; i = i + time_step)
@@ -319,8 +448,14 @@ int main()
 						int sus = countSus(agents);
 						int exp = countExposed(agents);
 						int inf = countInfected(agents);
-						double beta = reproductive_rate / (infected_time * (sus + exp + inf));
-						transmission(agents, beta, incubation_time, infected_time, i, RNGpoint);
+						double beta;
+						if (inf_dist == 0) {
+							beta = reproductive_rate / (infected_time * (sus + exp + inf));
+						}
+						else {
+							beta = reproductive_rate / ((((upper_inf-lower_inf)/2.0) + lower_inf) * (sus + exp + inf));
+						}
+						transmission(agents, beta, incubation_time, lower_inc, upper_inc, infected_time, lower_inf, upper_inf, i, RNGpoint, triangleRNGpoint, inc_dist, inf_dist);
 
 						if (run == 0) {
 							sData.push_back(countSus(agents));
@@ -332,46 +467,79 @@ int main()
 							eData.at(i) = eData.at(i) + countExposed(agents);
 							iData.at(i) = iData.at(i) + countInfected(agents);
 						}
-						if (run == numOfRuns - 1) {
-							outputFile << i << ", " << (double) sData[i]/numOfRuns << ", " << (double) eData[i]/numOfRuns << ", " << (double) iData[i]/numOfRuns << ", " << (sData[i] + eData[i] + iData[i])/numOfRuns << "\n";
+						if (i == 100) {
+							s100.push_back(countSus(agents));
+							e100.push_back(countExposed(agents));
+							i100.push_back(countInfected(agents));
+						}
+						else if (i == 200) {
+							s200.push_back(countSus(agents));
+							e200.push_back(countExposed(agents));
+							i200.push_back(countInfected(agents));
+						}
+						else if (i == 365){
+							s365.push_back(countSus(agents));
+							e365.push_back(countExposed(agents));
+							i365.push_back(countInfected(agents));
 						}
 					}
 					run++;
 					agents.clear();
 				}
+
+				outputFile << "Day, Suceptible, Exposed, Infected, Total\n";
+				for (int i = 0; i < sData.size(); i++) {
+					outputFile << i << ", " << (double)sData[i] / numOfRuns << ", " << (double)eData[i] / numOfRuns << ", " << (double)iData[i] / numOfRuns << ", " << (sData[i] + eData[i] + iData[i]) / numOfRuns << "\n";
+				}
+
+				//STANDARD DEV
+				vector<vector<int>> samples = {s100, e100, i100, s200, e200, i200, s365, e365, i365 };
+				for (vector<int> v : samples) {
+					double mean = 0;
+					for (int j : v) {
+						mean = mean + j;
+					}
+					mean = mean / v.size();
+					double variance = 0;
+					for (int j : v) {
+						variance = variance + pow((j - mean), 2);
+					}
+					variance = variance / v.size();
+					double stddev = sqrt(variance);
+					cout << stddev << "\n";
+				}
 				
-				
-				
-				
+
+
 				double summary_statistic_1_s = summary_statistics(sData, summary_statistic1, 1);
 				double summary_statistic_1_e = summary_statistics(eData, summary_statistic1, 1);
 				double summary_statistic_1_i = summary_statistics(iData, summary_statistic1, 1);
-				double summary_statistic_2_s = summary_statistics(sData, summary_statistic2, summary_statistic1); 
+				double summary_statistic_2_s = summary_statistics(sData, summary_statistic2, summary_statistic1);
 				double summary_statistic_2_e = summary_statistics(eData, summary_statistic2, summary_statistic1);
 				double summary_statistic_2_i = summary_statistics(iData, summary_statistic2, summary_statistic1);
-				double summary_statistic_3_s = summary_statistics(sData, summary_statistic3, summary_statistic2);	
+				double summary_statistic_3_s = summary_statistics(sData, summary_statistic3, summary_statistic2);
 				double summary_statistic_3_e = summary_statistics(eData, summary_statistic3, summary_statistic2);
 				double summary_statistic_3_i = summary_statistics(iData, summary_statistic3, summary_statistic2);
-				double summary_statistic_4_s = summary_statistics(sData, summary_statistic4, summary_statistic3); 
+				double summary_statistic_4_s = summary_statistics(sData, summary_statistic4, summary_statistic3);
 				double summary_statistic_4_e = summary_statistics(eData, summary_statistic4, summary_statistic3);
 				double summary_statistic_4_i = summary_statistics(iData, summary_statistic4, summary_statistic3);
 
 
-				cout << "\n"; 
-				cout << "Here is a summary of the outputed data: \n"; 
-				cout << "Susceptible, Exposed, Infected \n"; 
-				cout << "At 7 days: "; 
+				cout << "\n";
+				cout << "Here is a summary of the outputed data: \n";
+				cout << "Susceptible, Exposed, Infected \n";
+				cout << "At 7 days: ";
 				cout << summary_statistic_1_s << ", " << summary_statistic_1_e << ", " << summary_statistic_1_i;
-				cout << "\n"; 
-				cout << "At 14 days: "; 
-				cout << summary_statistic_2_s << ", " << summary_statistic_2_e << ", " << summary_statistic_2_i; 
-				cout << "\n"; 
+				cout << "\n";
+				cout << "At 14 days: ";
+				cout << summary_statistic_2_s << ", " << summary_statistic_2_e << ", " << summary_statistic_2_i;
+				cout << "\n";
 				cout << "At 1 month: ";
-				cout << summary_statistic_3_s << ", " << summary_statistic_3_e << ", " << summary_statistic_3_i; 
-				cout << "\n"; 
-				cout << "At 2 months: "; 
-				cout << summary_statistic_4_s << ", " << summary_statistic_4_e << ", " << summary_statistic_4_i; 
-				cout << "\n";  
+				cout << summary_statistic_3_s << ", " << summary_statistic_3_e << ", " << summary_statistic_3_i;
+				cout << "\n";
+				cout << "At 2 months: ";
+				cout << summary_statistic_4_s << ", " << summary_statistic_4_e << ", " << summary_statistic_4_i;
+				cout << "\n";
 				outputFile.close();
 			}
 			//If file does not exist the program will output this and then end
@@ -381,7 +549,7 @@ int main()
 		{
 			exit(1);
 			return 0;
-		} 
+		}
 	}
 	return 0;
 }

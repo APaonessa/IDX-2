@@ -18,18 +18,18 @@ void Agent::setState(int s) {
 	diseaseState = s;
 }
 
-int Agent::getTimeExp() {
-	return timeExp;
+int Agent::getEI() {
+	return EItransition;
 }
 
-void Agent::setTimeExp(int day) {
-	timeExp = day;
+void Agent::setEI(int day) {
+	EItransition = day;
 }
 
-int Agent::getTimeInf() {
-	return timeInf;
+int Agent::getIS() {
+	return IStransition;
 }
 
-void Agent::setTimeInf(int day) {
-	timeInf = day;
+void Agent::setIS(int day) {
+	IStransition = day;
 }
