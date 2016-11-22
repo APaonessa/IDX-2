@@ -6,39 +6,10 @@
 #include <string>; 
 #include <ios>; 
 #include "Agent.h";
+#include "Facility.h";
 #include <boost/random.hpp>
 #include <boost/generator_iterator.hpp>
 using namespace std;
-
-int countInfected(vector<Agent*> agents) {
-	int count = 0;
-	for (Agent* a : agents) {
-		if ((*a).getState() == 2) {
-			count++;
-		}
-	}
-	return count;
-}
-
-int countExposed(vector<Agent*> agents) {
-	int count = 0;
-	for (Agent* a : agents) {
-		if ((*a).getState() == 1) {
-			count++;
-		}
-	}
-	return count;
-}
-
-int countSus(vector<Agent*> agents) {
-	int count = 0;
-	for (Agent* a : agents) {
-		if ((*a).getState() == 0) {
-			count++;
-		}
-	}
-	return count;
-}
 
 int randProb(vector<double> probs, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
 {
@@ -62,7 +33,7 @@ double randNum(boost::variate_generator< boost::mt19937&, boost::random::uniform
 	return RNG();
 }
 
-double randTriangleNum(boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint)
+double randNum(boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint)
 {
 	boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > RNG = *triangleRNGpoint;
 	return RNG();
@@ -82,81 +53,24 @@ double summary_statistics(vector<int>& inputdata, int amt_time, int previous_tim
 	return avg; 
 }
 
-
-//combines susToExp, expToInf, and infToSus
-void transmission(vector<Agent*> agents, double beta, double incubationTime, double lower_inc, double upper_inc, double infectedTime, double lower_inf, double upper_inf, int timeStep, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint, boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint, int inc_dist, int inf_dist)
-{
-	double probability = 1 - pow(1 - beta, countInfected(agents));
-	vector<double> probs = { probability, (1 - probability) };
-
-	for (Agent* a : agents)
-	{
-		if ((*a).getState() == 0) {	//sus to exp
-			if (randProb(probs, RNGpoint) == 0) {
-				(*a).setState(1);
-			}
-		}
-		else if ((*a).getState() == 1) {	//exp to inf
-			if ((*a).getEI() == -1) {
-				if (inc_dist == 0) {		//single value
-					(*a).setEI(timeStep + incubationTime);
-				}
-				else if (inc_dist == 1) {		//uniform
-					(*a).setEI(timeStep + ceil(randNum(RNGpoint)*(upper_inc - lower_inc)) + lower_inc);
-				}
-				else if (inc_dist == 2) {		//triangular
-					(*a).setEI(timeStep + ceil(randTriangleNum(triangleRNGpoint)*(upper_inc - lower_inc)) + lower_inc);
-				}
-			}
-			else if (timeStep == (*a).getEI()) {
-				(*a).setState(2);
-				(*a).setEI(-1);
-			}
-		}
-		else if ((*a).getState() == 2) {	//inf to sus
-			if ((*a).getIS() == -1) {
-				if (inf_dist == 0) {	//single value
-					(*a).setIS(timeStep + infectedTime);
-				}
-				else if (inf_dist == 1) {		//uniform
-					(*a).setIS(timeStep + ceil(randNum(RNGpoint)*(upper_inf - lower_inf)) + lower_inf);
-				}
-				else if (inf_dist == 2) {		//triangular
-					(*a).setIS(timeStep + ceil(randTriangleNum(triangleRNGpoint)*(upper_inf - lower_inf)) + lower_inf);
-				}
-			}
-			else if (timeStep == (*a).getIS()) {
-				(*a).setState(0);
-				(*a).setIS(-1);
-			}
-		}
-	}
-
-
-
-}
-
 void inputInfo()
 {
 //Information for formatting the text file...
 cout << "To run this program input a .txt file in this form...\n";
 cout << "(Do not use commas to separate numbers)\n";
 cout << "\n";
-cout << "Line 1: # of Susceptible, # of Exposed, # of Infected\n";
-cout << "Line 2: Incubation time, infected time, reproductive rate\n";
+cout << "Line 1: Incubation time, infected time, reproductive rate\n";
 cout << "\n";
-cout << "Line 3: Length of time model runs for, time step for printing out data";
+cout << "Line 2: Length of time model runs for, time step for printing out data";
 cout << "\n";
 cout << "\n";
-cout << "Line 4: Input 4 #'s for summary statistics"; 
+cout << "Line 3: Input 4 #'s for summary statistics"; 
 cout << "\n";
 cout << "\n"; 
-cout << "Line 5: Number of simulation runs";
+cout << "Line 4: Number of simulation runs";
 cout << "\n";
 cout << "\n";
 cout << "Example of txt file: \n";
-cout << "1000 0 1";
-cout << "\n";
 cout << "2.0 14.0 1.5";
 cout << "\n";
 cout << "365 1";
@@ -168,20 +82,11 @@ cout << "\n";
 cout << "\n";
 }
 
-void outputInfo(int susceptible, int infected, int exposed, int inf_dist, double infected_time, double lower_inf, double upper_inf, int time_step, int inc_dist, double incubation_time, double lower_inc, double upper_inc, double reproductive_rate, int endtime, int summary_statistic1, int summary_statistic2, int summary_statistic3, int summary_statistic4, int numOfRuns)
+void outputInfo(int inf_dist, double lower_inf, double upper_inf, int time_step, int inc_dist, double lower_inc, double upper_inc, double reproductive_rate, int endtime, int summary_statistic1, int summary_statistic2, int summary_statistic3, int summary_statistic4, int numOfRuns)
 {
-cout << "susceptible: ";
-cout << susceptible;
-cout << "\n";
-cout << "exposed: ";
-cout << exposed;
-cout << "\n";
-cout << "infected: ";
-cout << infected;
-cout << "\n";
 if (inc_dist == 0) {
 	cout << "incubation time: ";
-	cout << incubation_time;
+	cout << upper_inc;
 	cout << "\n";
 }
 else if (inc_dist == 1) {
@@ -197,7 +102,7 @@ else if (inc_dist == 2) {
 
 if (inf_dist == 0) {
 	cout << "infected time: ";
-	cout << infected_time;
+	cout << upper_inf;
 	cout << "\n";
 }
 else if (inf_dist == 1) {
@@ -236,6 +141,34 @@ cout << numOfRuns;
 cout << "\n";
 }
 
+void readTransferMatrix(double(*matrix)[30][30], string filename)	//num of facil must be less than 30
+{
+	fstream f;
+	f.open(filename);
+	int numOfFacil;
+	f >> numOfFacil;		//first line of file is the number of facilities
+
+	for (int i = 0; i < numOfFacil; i++) { // loop through the 1st dimension of the array
+		for (int j = 0; j < numOfFacil; j++) { // loop through the 2nd dimension of the array
+			f >> (*matrix)[i][j]; // read to each element of the array  
+		}
+	}
+	f.close();
+
+	//normalize
+	for (int i = 0; i < numOfFacil; i++) {
+		double sum = 0;
+		for (int j = 0; j < numOfFacil; j++) {
+			sum = sum + (*matrix)[i][j];
+		}
+		for (int j = 0; j < numOfFacil; j++) {
+			(*matrix)[i][j] = (*matrix)[i][j] / sum;
+		}
+	}
+	
+}
+
+
 int main()
 {
 
@@ -259,15 +192,12 @@ int main()
 		}
 		if (runagain > 0 && runagain < 2)
 		{
-			string filename;
+			string textfile;
 			//Asks for filename from user
 			//Could have a graphic interface? and open the file browser
-			cout << "Input the name of the .txt file you wish to use ";
-			cin >> filename;
+			cout << "Input the name of the simulation info file you wish to use ";
+			cin >> textfile;
 
-			//Concatonates the filename with the .txt ending to open the file 
-			string textfile = filename + ".txt";
-			string line;
 			//Lets the program recognize the given file 
 			fstream myfile;
 
@@ -285,59 +215,85 @@ int main()
 				myfile.close();
 
 				//switches the data from being in string form to being an integer
-				int susceptible = stoi(inputInformation[0]);
-				int exposed = stoi(inputInformation[1]);
-				int infected = stoi(inputInformation[2]);
-				int time_step = stoi(inputInformation[7]);
-				int endtime = stoi(inputInformation[6]);
-				double incubation_time, upper_inc, lower_inc;
-				int checkRange = inputInformation[3].find('-');
+				int time_step = stoi(inputInformation[4]);
+				int endtime = stoi(inputInformation[3]);
+				double upper_inc, lower_inc;
+				int checkRange = inputInformation[0].find('-');
 				int inc_dist, inf_dist;	//0 = single value, 1 = uniform, 2 = triangular
 				if (checkRange == -1) {	//single value
-					incubation_time = stod(inputInformation[3]);
 					inc_dist = 0;
-					lower_inc = -1;
-					upper_inc = -1;
+					lower_inc = stod(inputInformation[0]);
+					upper_inc = stod(inputInformation[0]);
 				}
 				else {	//range of values
-					lower_inc = stod(inputInformation[3].substr(0, checkRange));
-					upper_inc = stod(inputInformation[3].substr(checkRange+1, inputInformation[3].size()-checkRange-1));
-					incubation_time = -1;
+					lower_inc = stod(inputInformation[0].substr(0, checkRange));
+					upper_inc = stod(inputInformation[0].substr(checkRange+1, inputInformation[0].size()-checkRange-1));
 
 					cout << "\n";
 					cout << "Uniform distribution (1) or triangular distribution (2) for incubation time?";
 					cin >> inc_dist;
 				}
-				double infected_time, upper_inf, lower_inf;
-				checkRange = inputInformation[4].find('-');
+				double upper_inf, lower_inf;
+				checkRange = inputInformation[1].find('-');
 				if (checkRange == -1) {	//single value
-					infected_time = stod(inputInformation[4]);
 					inf_dist = 0;
-					lower_inf = -1;
-					upper_inf = -1;
+					lower_inf = stod(inputInformation[1]);
+					upper_inf = stod(inputInformation[1]);
 				}
 				else {	//range of values
-					lower_inf = stod(inputInformation[4].substr(0, checkRange));
-					upper_inf = stod(inputInformation[4].substr(checkRange + 1, inputInformation[4].size() - checkRange - 1));
-					infected_time = -1;
+					lower_inf = stod(inputInformation[1].substr(0, checkRange));
+					upper_inf = stod(inputInformation[1].substr(checkRange + 1, inputInformation[1].size() - checkRange - 1));
 
 					cout << "\n";
 					cout << "Uniform distribution (1) or triangular distribution (2) for infected time?";
 					cin >> inf_dist;
 
 				}
-				double reproductive_rate = stod(inputInformation[5]);
-				int summary_statistic1 = stoi(inputInformation[8]);
-				int summary_statistic2 = stoi(inputInformation[9]);
-				int summary_statistic3 = stoi(inputInformation[10]);
-				int summary_statistic4 = stoi(inputInformation[11]);
-				int numOfRuns = stoi(inputInformation[12]);
-
+				double reproductive_rate = stod(inputInformation[2]);
+				int summary_statistic1 = stoi(inputInformation[5]);
+				int summary_statistic2 = stoi(inputInformation[6]);
+				int summary_statistic3 = stoi(inputInformation[7]);
+				int summary_statistic4 = stoi(inputInformation[8]);
+				int numOfRuns = stoi(inputInformation[9]);
 
 				//prints out the data that is read in file as a check... 
-				outputInfo(susceptible, infected, exposed, inf_dist, infected_time, lower_inf, upper_inf, time_step, inc_dist, incubation_time, lower_inc, upper_inc, reproductive_rate, endtime, summary_statistic1, summary_statistic2, summary_statistic3, summary_statistic4, numOfRuns);
+				outputInfo(inf_dist, lower_inf, upper_inf, time_step, inc_dist, lower_inc, upper_inc, reproductive_rate, endtime, summary_statistic1, summary_statistic2, summary_statistic3, summary_statistic4, numOfRuns);
 
+				string facilityfile;
+				//Asks for filename from user
+				cout << "Input the name of the facility file you wish to use ";
+				cin >> facilityfile;
 
+				//Lets the program recognize the given file 
+				fstream ffile;
+
+				//If the file exists (and in the right place) the file will open and write to the output the contents of file
+				ffile.open(facilityfile);
+
+				string facilInfo[31];
+				if (ffile.good())
+				{
+					n = 0;
+					while (!ffile.eof())
+					{
+						//cout << n;
+						//runs through the file and populates the array with the data from the file
+						string line;
+						getline(ffile, line);
+						facilInfo[n] = line;
+						n++;
+					}
+
+					ffile.close();
+				}
+				int numFacil = stoi(facilInfo[0]);
+
+				double transferMatrix[30][30];
+				double(*matrixPoint)[30][30] = &transferMatrix;	//pointer to transferMatrix
+				cout << "Enter the name of the transfer matrix file ";
+				string filename;
+				cin >> filename;
+				readTransferMatrix(matrixPoint, filename);
 
 
 				//Give the option to run with current data or start over and enter new data
@@ -349,34 +305,10 @@ int main()
 				cout << "Input the name of the file data will be outputted to: ";
 				cin >> output_filename;
 
-				//Concatonates the filename with the .txt ending to open the file 
-				string output_textfile = output_filename + ".txt";
-				string line;
 				//Lets the program recognize the given file 
-
-				string outputFileName = output_textfile; //input
-
 				ofstream outputFile;
-				outputFile.open(outputFileName);
+				outputFile.open(output_filename);
 
-				//stores current sum of SEI at every time interval over the runs
-				vector<int> sData;
-				vector<int> eData;
-				vector<int> iData;
-
-				vector<int> s365;
-				vector<int> e365;
-				vector<int> i365;
-
-				vector<int> s200;
-				vector<int> e200;
-				vector<int> i200;
-
-				vector<int> s100;
-				vector<int> e100;
-				vector<int> i100;
-
-				vector<Agent*> agents;
 
 				boost::mt19937 generator(time(0));	//create RNG
 				boost::random::uniform_real_distribution< > uniformDistribution(0.0, 1.0);
@@ -389,127 +321,81 @@ int main()
 
 				boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint = &generateRandomNumbers;
 				boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint = &generateTriangleRandomNumbers;
-				
+			
+				vector<Facility*> facilities;
 				while (run < numOfRuns) {
-
-					//initialize agents
-					for (int i = 0; i < susceptible; i++) {
-						Agent * a = new Agent();
-						(*a).setState(0);
-						(*a).setEI(-1);
-						(*a).setIS(-1);
-						agents.push_back(a);
-					}
-					for (int i = 0; i < exposed; i++) {
-						Agent * a = new Agent();
-						(*a).setState(1);
-						if (inc_dist == 0) {		//single value
-							(*a).setEI(incubation_time);
+					//initialize facilities
+					for (int i = 1; i <= numFacil; i++) {
+						if (run == 0) {
+							Facility * f = new Facility(facilInfo[i], triangleRNGpoint, RNGpoint, inc_dist, upper_inc, lower_inc, inf_dist, upper_inf, lower_inf);
+							(*f).addS((*f).countSus());
+							(*f).addE((*f).countExp());
+							(*f).addI((*f).countInf());
+							facilities.push_back(f);
 						}
-						else if (inc_dist == 1) {		//uniform
-							(*a).setEI(ceil(randNum(RNGpoint)*(upper_inc - lower_inc)) + lower_inc);
+						else {
+							Facility * f = facilities.at(i-1);
+							(*f).updateS(0, (*f).countSus());
+							(*f).updateE(0, (*f).countExp());
+							(*f).updateI(0, (*f).countInf());
 						}
-						else if (inc_dist == 2) {	//triangular
-							(*a).setEI(ceil(randTriangleNum(triangleRNGpoint)*(upper_inc - lower_inc)) + lower_inc);
-						}
-						(*a).setIS(-1);
-						agents.push_back(a);
-					}
-					for (int i = 0; i < infected; i++) {
-						Agent * a = new Agent();
-						(*a).setState(2);
-						(*a).setEI(-1);
-						if (inf_dist == 0) {		//single value
-							(*a).setIS(infected_time);
-						}
-						else if (inf_dist == 1) {		//uniform
-							(*a).setIS(ceil(randNum(RNGpoint)*(upper_inf - lower_inf)) + lower_inf);
-						}
-						else if (inf_dist == 2) {	//triangular
-							(*a).setIS(ceil(randTriangleNum(triangleRNGpoint)*(upper_inf - lower_inf)) + lower_inf);
-						}
-						agents.push_back(a);
-					}
-
-					if (run == 0) {
-						sData.push_back(susceptible);
-						eData.push_back(exposed);
-						iData.push_back(infected);
-					}
-					else {
-						sData.at(0) = sData.at(0) + susceptible;
-						eData.at(0) = eData.at(0) + exposed;
-						iData.at(0) = iData.at(0) + infected;
 					}
 
 
+					
 					for (int i = 1; i <= endtime; i = i + time_step)
 					{
-						int sus = countSus(agents);
-						int exp = countExposed(agents);
-						int inf = countInfected(agents);
-						double beta;
-						if (inf_dist == 0) {
-							beta = reproductive_rate / (infected_time * (sus + exp + inf));
-						}
-						else {
-							beta = reproductive_rate / ((((upper_inf-lower_inf)/2.0) + lower_inf) * (sus + exp + inf));
-						}
-						transmission(agents, beta, incubation_time, lower_inc, upper_inc, infected_time, lower_inf, upper_inf, i, RNGpoint, triangleRNGpoint, inc_dist, inf_dist);
+						for (int j = 0; j < numFacil; j++) {
+							Facility * f = facilities.at(j);
+							int sus = (*f).countSus();
+							int exp = (*f).countExp();
+							int inf = (*f).countInf();
+							double beta;
+							if (inf_dist == 0) {
+								beta = reproductive_rate / (upper_inf * (sus + exp + inf));
+							}
+							else {
+								beta = reproductive_rate / ((((upper_inf - lower_inf) / 2.0) + lower_inf) * (sus + exp + inf));
+							}
 
-						if (run == 0) {
-							sData.push_back(countSus(agents));
-							eData.push_back(countExposed(agents));
-							iData.push_back(countInfected(agents));
+							(*f).dynamics(beta, i);
+							
+							if (run == 0) {
+								(*f).addS((*f).countSus());
+								(*f).addE((*f).countExp());
+								(*f).addI((*f).countInf());
+							}
+							else {
+								(*f).updateS(i, (*f).countSus());
+								(*f).updateE(i, (*f).countExp());
+								(*f).updateI(i, (*f).countInf());
+							}
 						}
-						else {
-							sData.at(i) = sData.at(i) + countSus(agents);
-							eData.at(i) = eData.at(i) + countExposed(agents);
-							iData.at(i) = iData.at(i) + countInfected(agents);
-						}
-						if (i == 100) {
-							s100.push_back(countSus(agents));
-							e100.push_back(countExposed(agents));
-							i100.push_back(countInfected(agents));
-						}
-						else if (i == 200) {
-							s200.push_back(countSus(agents));
-							e200.push_back(countExposed(agents));
-							i200.push_back(countInfected(agents));
-						}
-						else if (i == 365){
-							s365.push_back(countSus(agents));
-							e365.push_back(countExposed(agents));
-							i365.push_back(countInfected(agents));
-						}
+						//transfer
+						/*for (int j = 0; j < numFacil; j++) {
+							Facility * f = facilities.at(j);
+							(*f).reset();
+						}*/
+
 					}
 					run++;
-					agents.clear();
+					for (int j = 0; j < numFacil; j++) {	//reset
+						Facility * f = facilities.at(j);
+						(*f).reset();
+					}
 				}
 
-				outputFile << "Day, Suceptible, Exposed, Infected, Total\n";
-				for (int i = 0; i < sData.size(); i++) {
-					outputFile << i << ", " << (double)sData[i] / numOfRuns << ", " << (double)eData[i] / numOfRuns << ", " << (double)iData[i] / numOfRuns << ", " << (sData[i] + eData[i] + iData[i]) / numOfRuns << "\n";
-				}
-
-				//STANDARD DEV
-				vector<vector<int>> samples = {s100, e100, i100, s200, e200, i200, s365, e365, i365 };
-				for (vector<int> v : samples) {
-					double mean = 0;
-					for (int j : v) {
-						mean = mean + j;
+				outputFile << "Day, Suceptible, Exposed, Infected, Total (by facility)\n";
+				for (int i = 0; i <= (endtime/time_step); i++) {
+					outputFile << i << ", ";
+					for (int j = 0; j < numFacil; j++) {
+						Facility f = *(facilities.at(j));
+						outputFile << (double)f.getS(i) / numOfRuns << ", " << (double)f.getE(i) / numOfRuns << ", " << (double)f.getI(i) / numOfRuns << ", " << (f.getS(i) + f.getE(i) + f.getI(i)) / numOfRuns << ", ";
 					}
-					mean = mean / v.size();
-					double variance = 0;
-					for (int j : v) {
-						variance = variance + pow((j - mean), 2);
-					}
-					variance = variance / v.size();
-					double stddev = sqrt(variance);
-					cout << stddev << "\n";
+					outputFile << "\n";
 				}
 				
-
+				/*
 
 				double summary_statistic_1_s = summary_statistics(sData, summary_statistic1, 1);
 				double summary_statistic_1_e = summary_statistics(eData, summary_statistic1, 1);
@@ -540,7 +426,7 @@ int main()
 				cout << "At 2 months: ";
 				cout << summary_statistic_4_s << ", " << summary_statistic_4_e << ", " << summary_statistic_4_i;
 				cout << "\n";
-				outputFile.close();
+				outputFile.close();*/
 			}
 			//If file does not exist the program will output this and then end
 			else cout << "Unable to open file.  ";

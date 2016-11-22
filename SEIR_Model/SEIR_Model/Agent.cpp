@@ -33,3 +33,24 @@ int Agent::getIS() {
 void Agent::setIS(int day) {
 	IStransition = day;
 }
+
+int Agent::getFacility() {
+	return facility;
+}
+
+void Agent::setFacility(int facil) {
+	facility = facil;
+}
+
+int Agent::getSubFacility() {
+	return subFacility;
+}
+
+void Agent::setSubFacility(int subfacil) {
+	subFacility = subfacil;
+}
+
+int Agent::LOS(int facility, int sub, int state) {
+	//return LOS based on parameters
+	return 0;
+}
