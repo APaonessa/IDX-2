@@ -27,6 +27,23 @@ int randProb(vector<double> probs, boost::variate_generator< boost::mt19937&, bo
 	return probs.size() - 1;
 }
 
+int randProb(double probs[], int size, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
+{
+	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > RNG = *RNGpoint;
+	double randNum = RNG();
+
+	double currProb = probs[0];
+	for (int i = 0; i<(size - 1); i++) {
+		if (randNum<currProb) {
+			return i;				//return index of drawn probability
+		}
+		currProb = currProb + probs[i + 1];
+	}
+
+	return size - 1;
+}
+
+
 double randNum(boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint)
 {
 	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > RNG = *RNGpoint;
@@ -327,7 +344,7 @@ int main()
 					//initialize facilities
 					for (int i = 1; i <= numFacil; i++) {
 						if (run == 0) {
-							Facility * f = new Facility(facilInfo[i], triangleRNGpoint, RNGpoint, inc_dist, upper_inc, lower_inc, inf_dist, upper_inf, lower_inf);
+							Facility * f = new Facility(i-1, facilInfo[i], triangleRNGpoint, RNGpoint, inc_dist, upper_inc, lower_inc, inf_dist, upper_inf, lower_inf);
 							(*f).addS((*f).countSus());
 							(*f).addE((*f).countExp());
 							(*f).addI((*f).countInf());
@@ -371,11 +388,21 @@ int main()
 								(*f).updateI(i, (*f).countInf());
 							}
 						}
+
 						//transfer
-						/*for (int j = 0; j < numFacil; j++) {
+						vector<Agent*> transfers;
+						for (int j = 0; j < numFacil; j++) {
 							Facility * f = facilities.at(j);
-							(*f).reset();
-						}*/
+							vector<Agent*> temp = (*f).removePatients(i);
+							transfers.insert(transfers.end(), temp.begin(), temp.end()); 
+						}
+						for (Agent* a : transfers) {
+							int destination = randProb(transferMatrix[(*a).getFacility()], numFacil, RNGpoint);
+							(*facilities.at(destination)).addPatient(a, i);
+						}
+						transfers.clear();
+
+
 
 					}
 					run++;

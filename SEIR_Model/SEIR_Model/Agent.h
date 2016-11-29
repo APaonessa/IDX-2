@@ -14,12 +14,14 @@ public:
 	void setFacility(int facil);
 	int getSubFacility();
 	void setSubFacility(int subfacil);
-	int LOS(int facility, int sub, int state);
+	void setDischarge(double l);
+	double getDischarge();
 private:
 	int diseaseState;
 	int EItransition;	//what day will they transition from E to I?
 	int IStransition;	//what day will they transition from I to S?
 	int facility;
 	int subFacility;
+	double discharge;		//discharge date
 };
 

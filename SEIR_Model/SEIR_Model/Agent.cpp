@@ -50,7 +50,10 @@ void Agent::setSubFacility(int subfacil) {
 	subFacility = subfacil;
 }
 
-int Agent::LOS(int facility, int sub, int state) {
-	//return LOS based on parameters
-	return 0;
+void Agent::setDischarge(double l) {
+	discharge = l;
+}
+
+double Agent::getDischarge() {
+	return discharge;
 }

@@ -1,1 +1,5 @@
 facility name, subfacility (0=general, 1=ICU), S, E, I, bedsize, prevelence, incidence, LOS mean, LOS deviation, LOS distribution (0=normal, 1=lognormal)
+
+lognormal doesn't work
+
+not using bedsize, prevelence, incidence

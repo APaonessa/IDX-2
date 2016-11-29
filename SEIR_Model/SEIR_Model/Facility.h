@@ -3,11 +3,12 @@
 #include "Agent.h"
 #include <boost/random.hpp>
 #include <boost/generator_iterator.hpp>
+#include <memory>
 
 class Facility
 {
 public:
-	Facility(std::string input, boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangle, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * uniform, int incdist, double upinc, double lowinc, int infdist, double upinf, double lowinf);
+	Facility(int facil, std::string input, boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangle, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * uniform, int incdist, double upinc, double lowinc, int infdist, double upinf, double lowinf);
 	~Facility();
 	int countSus();
 	int countExp();
@@ -21,13 +22,16 @@ public:
 	int getS(int index);
 	int getE(int index);
 	int getI(int index);
-	std::vector<Agent*> agents_vect();
 	void dynamics(double beta, int timeStep);
 	void reset();
+	double LOS();
+	std::vector<Agent*> removePatients(int timestep);
+	void addPatient(Agent* a, int timestep);
 
 private:
 	std::string name;
 	std::vector<Agent*> agents;
+	int facility;
 	int subfacil;
 	int bed_size;
 	double prev;
@@ -35,8 +39,11 @@ private:
 	double LOS_mean;
 	double LOS_dev;
 	int LOS_dist;
-	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * RNGpoint;
+	boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > *RNGpoint;
 	boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangleRNGpoint;
+	boost::variate_generator< boost::mt19937&, boost::random::lognormal_distribution < > > * lognormRNGpoint;
+	boost::variate_generator< boost::mt19937&, boost::random::normal_distribution < > > * normalRNGpoint;
+	boost::mt19937 * genpoint;
 	int inc_dist;
 	int inf_dist;
 	double upper_inc;

@@ -1,17 +1,16 @@
-﻿  Facility.cpp
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(51): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(54): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(64): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(184): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(187): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(198): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(201): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(217): warning C4018: '<': signed/unsigned mismatch
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(240): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(243): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(253): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(256): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+﻿  Source.cpp
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(7): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(8): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(9): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(20): warning C4018: '<': signed/unsigned mismatch
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(330): warning C4244: 'argument': conversion from 'time_t' to 'const uint32_t', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\source.cpp(195): warning C4101: 'timestep_graph': unreferenced local variable
 c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2810): warning C4996: 'std::_Fill_n': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
   c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2797): note: see declaration of 'std::_Fill_n'
   c:\program files\boost_1_62_0\boost\random\detail\polynomial.hpp(114): note: see reference to function template instantiation '_OutIt std::fill_n<boost::random::detail::polynomial_ops::digit_t*,size_t,boost::random::detail::polynomial_ops::digit_t>(_OutIt,_Diff,const _Ty &)' being compiled
@@ -21,4 +20,31 @@ c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2810): w
               _Diff=size_t,
               _Ty=boost::random::detail::polynomial_ops::digit_t
           ]
+  Facility.cpp
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(33): warning C4244: 'argument': conversion from 'time_t' to 'const uint32_t', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(64): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(76): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(79): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(195): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(198): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(209): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(212): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(228): warning C4018: '<': signed/unsigned mismatch
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(253): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(256): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(268): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(271): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2810): warning C4996: 'std::_Fill_n': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2797): note: see declaration of 'std::_Fill_n'
+  c:\program files\boost_1_62_0\boost\random\detail\polynomial.hpp(114): note: see reference to function template instantiation '_OutIt std::fill_n<boost::random::detail::polynomial_ops::digit_t*,size_t,boost::random::detail::polynomial_ops::digit_t>(_OutIt,_Diff,const _Ty &)' being compiled
+          with
+          [
+              _OutIt=boost::random::detail::polynomial_ops::digit_t *,
+              _Diff=size_t,
+              _Ty=boost::random::detail::polynomial_ops::digit_t
+          ]
+  Generating Code...
+c:\users\kristi\documents\school\research\abm\idx-2\seir_model\seir_model\facility.cpp(288): warning C4715: 'Facility::LOS': not all control paths return a value
   SEIR_Model.vcxproj -> C:\Users\Kristi\Documents\School\research\ABM\IDX-2\SEIR_Model\Debug\SEIR_Model.exe

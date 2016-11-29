@@ -1,10 +1,12 @@
 #include "Facility.h"
 #include <string>
 #include <sstream>
+#include <ctime>;
 
 
-Facility::Facility(std::string in, boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangle, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * uniform, int incdist, double upinc, double lowinc, int infdist, double upinf, double lowinf)
+Facility::Facility(int facil, std::string in, boost::variate_generator< boost::mt19937&, boost::random::triangle_distribution < > > * triangle, boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > > * uniform, int incdist, double upinc, double lowinc, int infdist, double upinf, double lowinf)
 {
+	facility = facil;
 	std::string input[11];
 	int i = 0;
 	std::stringstream ssin(in);
@@ -28,6 +30,12 @@ Facility::Facility(std::string in, boost::variate_generator< boost::mt19937&, bo
 	RNGpoint = uniform;
 	triangleRNGpoint = triangle;
 
+	genpoint = new boost::mt19937 (time(0));	//create RNG
+	boost::random::lognormal_distribution< > lognormalDistribution(LOS_mean, LOS_dev);
+	boost::random::normal_distribution< > normalDistribution(LOS_mean, LOS_dev);
+	lognormRNGpoint = new boost::variate_generator< boost::mt19937&, boost::random::lognormal_distribution < > >(*genpoint, lognormalDistribution);
+	normalRNGpoint = new boost::variate_generator< boost::mt19937&, boost::random::normal_distribution < > >(*genpoint, normalDistribution);
+
 	inf_dist = infdist;
 	inc_dist = incdist;
 	lower_inf = lowinf;
@@ -42,6 +50,8 @@ Facility::Facility(std::string in, boost::variate_generator< boost::mt19937&, bo
 		(*a).setState(0);
 		(*a).setEI(-1);
 		(*a).setIS(-1);
+		(*a).setDischarge(LOS());
+		(*a).setFacility(facility);
 		agents.push_back(a);
 	}
 	for (int i = 0; i < startE; i++) {
@@ -54,6 +64,8 @@ Facility::Facility(std::string in, boost::variate_generator< boost::mt19937&, bo
 			(*a).setEI(ceil(randTriangle()*(upper_inc - lower_inc)) + lower_inc);
 		}
 		(*a).setIS(-1);
+		(*a).setDischarge(LOS());
+		(*a).setFacility(facility);
 		agents.push_back(a);
 	}
 	for (int i = 0; i < startI; i++) {
@@ -66,6 +78,8 @@ Facility::Facility(std::string in, boost::variate_generator< boost::mt19937&, bo
 		else if (inf_dist == 2) {	//triangular
 			(*a).setIS(ceil(randTriangle()*(upper_inf - lower_inf)) + lower_inf);
 		}
+		(*a).setDischarge(LOS());
+		(*a).setFacility(facility);
 		agents.push_back(a);
 	} 
 
@@ -162,9 +176,6 @@ int Facility::getI(int index)
 	return i_Data[index];
 }
 
-std::vector<Agent*> Facility::agents_vect() {
-	return agents;
-}
 
 void Facility::dynamics(double beta, int timeStep)
 {
@@ -231,6 +242,8 @@ void Facility::reset() {
 		(*a).setState(0);
 		(*a).setEI(-1);
 		(*a).setIS(-1);
+		(*a).setDischarge(LOS());
+		(*a).setFacility(facility);
 		agents.push_back(a);
 	}
 	for (int i = 0; i < startE; i++) {
@@ -243,6 +256,8 @@ void Facility::reset() {
 			(*a).setEI(ceil(randTriangle()*(upper_inc - lower_inc)) + lower_inc);
 		}
 		(*a).setIS(-1);
+		(*a).setDischarge(LOS());
+		(*a).setFacility(facility);
 		agents.push_back(a);
 	}
 	for (int i = 0; i < startI; i++) {
@@ -255,6 +270,37 @@ void Facility::reset() {
 		else if (inf_dist == 2) {	//triangular
 			(*a).setIS(ceil(randTriangle()*(upper_inf - lower_inf)) + lower_inf);
 		}
+		(*a).setDischarge(LOS());
+		(*a).setFacility(facility);
 		agents.push_back(a);
 	}
+}
+
+double Facility::LOS() {
+	if (LOS_dist == 0) {	//normal
+		boost::variate_generator< boost::mt19937&, boost::random::normal_distribution < > > normRNG = *normalRNGpoint;
+		return normRNG();
+	}
+	else if (LOS_dist == 1) {		//lognormal DOESNT WORK
+		boost::variate_generator< boost::mt19937&, boost::random::lognormal_distribution < > > logRNG = *lognormRNGpoint;
+		return logRNG();
+	}
+}
+
+std::vector<Agent*> Facility::removePatients(int timestep) {
+	std::vector<Agent*> removed;
+	for (int i = agents.size() - 1; i >= 0; i--) {
+		if (timestep >= (*agents.at(i)).getDischarge()) {
+			removed.push_back(agents.at(i));
+			agents.erase(agents.begin() + i);
+		}
+	}
+	return removed;
+}
+
+void Facility::addPatient(Agent* a, int timestep) {
+	(*a).setFacility(facility);
+	(*a).setSubFacility(subfacil);
+	(*a).setDischarge(LOS() + timestep);
+	agents.push_back(a);
 }
